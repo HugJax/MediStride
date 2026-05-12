@@ -131,10 +131,43 @@ Pour une analyse encore plus précise, le BNO055 (Bosch) offre 9 axes (accélér
 | A3 | GPIO4 | ADC | FSR4 | 1er métatarse |
 | A4 | GPIO5 | ADC | FSR5 | 3e-4e métatarse |
 | A5 | GPIO6 | ADC | FSR6 | Gros orteil |
+| A7 / D9 | GPIO8 | ADC | Tension batterie | Diviseur 2× 220 kΩ vers BAT+ |
 | D6  | GPIO43 | I2C SDA | IMU (optionnel) | MPU-6050 SDA             |
 | D7  | GPIO44 | I2C SCL | IMU (optionnel) | MPU-6050 SCL             |
+| D10 | GPIO9 | Choix L/R | — | Pont de soudure → GND = pied gauche, ouvert = droit |
 | BAT+ | — | Alimentation | — | LiPo + via interrupteur |
 | BAT- | — | Alimentation | — | LiPo - |
+
+### Pont de soudure « Gauche / Droit »
+
+Pour éviter de devoir compiler deux variantes du firmware, le module détecte
+son côté au démarrage via **GPIO9** (D8) :
+
+```
+       GPIO9 (D8)
+          │
+       ──[•]── pont de soudure ── GND   →   "MediStride-L" (gauche)
+          │
+       ──[ ]── ouvert                     →   "MediStride-R" (droit)
+```
+
+Le pont est un simple cavalier soudé sur la PCB (ou un fil court entre GPIO9 et GND).
+Le choix peut aussi être forcé à distance par l'application via la caractéristique
+BLE de configuration (`CONFIG_CHAR_UUID`).
+
+### Diviseur de tension batterie
+
+```
+    BAT+ ───[220 kΩ]──┬───→ GPIO8 (A7)
+                      │
+                    [220 kΩ]
+                      │
+                     GND
+```
+
+Cela permet la mesure du niveau de batterie sans dépasser la plage 0-3,3 V de l'ADC
+(BAT+ peut atteindre 4,2 V à pleine charge). Le firmware applique automatiquement
+le facteur 2 pour reconstituer la tension batterie réelle.
 
 ## Liste des composants (BOM) — 1 pied
 

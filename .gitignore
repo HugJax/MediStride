@@ -19,10 +19,11 @@ env/
 .pioenvs/
 .piolibdeps/
 
-# Arduino
+# Arduino / firmware build artifacts
 *.elf
 *.hex
 *.bin
+software/app/web/firmware/bin/
 
 # KiCad
 *-backups/

@@ -2,13 +2,17 @@
 #include "sensors.h"
 #include "ble_server.h"
 #include "imu.h"
+#include "calibration.h"
+#include "power.h"
+#include "device_id.h"
 
 // Données globales
 static PressureData pressureData;
-static uint8_t bleBuffer[20];  // Buffer BLE (max 20 octets par notification)
+static uint8_t bleBuffer[20];
 
 static unsigned long lastSampleTime = 0;
 static unsigned long lastBatteryCheck = 0;
+static unsigned long timeOffsetMs = 0;  // Offset appliqué au timestamp (sync app)
 
 #ifdef IMU_ENABLED
 static IMUData imuData;
@@ -16,13 +20,15 @@ static uint8_t imuBuffer[20];
 static bool imuAvailable = false;
 #endif
 
-// Estimation simplifiée du niveau de batterie via la tension
-// Le XIAO ESP32-S3 n'a pas de broche dédiée pour la lecture batterie,
-// cette fonction est un placeholder pour une future implémentation
-static uint8_t read_battery_level() {
-    // TODO: Implémenter la lecture de la tension batterie
-    // via un diviseur de tension sur une broche ADC libre
-    return 100;
+// Décale toutes les futures lectures vers une horloge commune envoyée par l'app.
+// Appelée par ble_server quand l'app écrit la caractéristique CONFIG.
+void main_set_time_offset(uint32_t app_ms_now) {
+    timeOffsetMs = app_ms_now - millis();
+    DEBUG_PRINTF("[MAIN] Sync horloge appliquée : offset = %lu ms\n", timeOffsetMs);
+}
+
+uint32_t main_get_synced_ms() {
+    return millis() + timeOffsetMs;
 }
 
 void setup() {
@@ -30,18 +36,18 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
     DEBUG_PRINTLN("================================");
-    DEBUG_PRINTLN("  MediStride Firmware v1.0");
-    DEBUG_PRINTF("  Module: %s\n", DEVICE_NAME);
+    DEBUG_PRINTLN("  MediStride Firmware v1.1");
     DEBUG_PRINTLN("================================");
     #endif
 
-    // Initialisation des capteurs de pression
-    sensors_init();
+    device_id_init();
+    DEBUG_PRINTF("[MAIN] Module : %s\n", device_id_get_name());
 
-    // Initialisation BLE
+    calibration_load();
+    sensors_init();
+    power_init();
     ble_init();
 
-    // Initialisation IMU (optionnel)
     #ifdef IMU_ENABLED
     imuAvailable = imu_init();
     if (imuAvailable) {
@@ -58,21 +64,22 @@ void setup() {
 void loop() {
     unsigned long now = millis();
 
-    // Échantillonnage à fréquence fixe
-    if (now - lastSampleTime < SAMPLE_INTERVAL_MS) return;
+    if (now - lastSampleTime < SAMPLE_INTERVAL_MS) {
+        // Vérifie périodiquement la mise en veille si non connecté
+        power_check_idle_sleep(ble_is_connected());
+        return;
+    }
     lastSampleTime = now;
 
-    // Lecture des capteurs de pression
+    // Lecture des capteurs (utilise la calibration NVS)
     sensors_read(pressureData);
 
-    // Envoi BLE si connecté
     if (ble_is_connected()) {
         uint8_t len = sensors_encode(pressureData, bleBuffer, sizeof(bleBuffer));
         if (len > 0) {
             ble_notify_pressure(bleBuffer, len);
         }
 
-        // Lecture et envoi IMU (optionnel)
         #ifdef IMU_ENABLED
         if (imuAvailable) {
             imu_read(imuData);
@@ -83,19 +90,17 @@ void loop() {
         }
         #endif
 
-        // Vérification batterie périodique
         if (now - lastBatteryCheck >= BATTERY_CHECK_INTERVAL_MS) {
             lastBatteryCheck = now;
-            uint8_t battery = read_battery_level();
+            uint8_t battery = power_read_battery_percent();
             ble_update_battery(battery);
 
             if (battery <= BATTERY_LOW_THRESHOLD) {
-                DEBUG_PRINTLN("[MAIN] Batterie faible !");
+                DEBUG_PRINTF("[MAIN] Batterie faible : %u%%\n", battery);
             }
         }
     }
 
-    // Debug : afficher les valeurs toutes les secondes
     #ifdef DEBUG_SERIAL
     static unsigned long lastDebug = 0;
     if (now - lastDebug >= 1000) {
@@ -117,4 +122,6 @@ void loop() {
         #endif
     }
     #endif
+
+    power_check_idle_sleep(ble_is_connected());
 }

@@ -6,8 +6,12 @@
 // ============================================================
 // Identification du module
 // ============================================================
-// Modifier selon le pied : "MediStride-L" (gauche) ou "MediStride-R" (droit)
-#define DEVICE_NAME "MediStride-L"
+// Le nom BLE est désormais déterminé automatiquement au boot par device_id.cpp :
+//  - GPIO9 (D10) relié à GND   → "MediStride-L" (gauche)
+//  - GPIO9 (D10) laissé flottant → "MediStride-R" (droit)
+// Le nom peut aussi être forcé par BLE via la caractéristique de configuration.
+// DEVICE_NAME ci-dessous n'est plus utilisé que comme fallback.
+#define DEVICE_NAME "MediStride-?"
 
 // ============================================================
 // Broches ADC — Capteurs FlexiForce A301
@@ -53,6 +57,8 @@ static const uint8_t FSR_COUNT = sizeof(FSR_PINS) / sizeof(FSR_PINS[0]);
 #define PRESSURE_CHAR_UUID  "4d454449-5354-5249-4445-000000000002"
 #define IMU_CHAR_UUID       "4d454449-5354-5249-4445-000000000003"
 #define BATTERY_CHAR_UUID   "4d454449-5354-5249-4445-000000000004"
+// Caractéristique de configuration en écriture (calibration, choix côté, sync horloge)
+#define CONFIG_CHAR_UUID    "4d454449-5354-5249-4445-000000000005"
 
 // Intervalle de connexion BLE (ms)
 #define BLE_CONN_MIN_INTERVAL  15

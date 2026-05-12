@@ -1,0 +1,70 @@
+name: Deploy MediStride app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            firmware/.pio
+          key: pio-${{ hashFiles('firmware/platformio.ini') }}
+
+      - name: Build firmware (gauche)
+        working-directory: firmware
+        run: pio run -e xiao_esp32s3_left
+
+      - name: Build firmware (droit)
+        working-directory: firmware
+        run: pio run -e xiao_esp32s3_right
+
+      - name: Stage binaries into web app
+        run: |
+          mkdir -p software/app/web/firmware/bin
+          cp firmware/.pio/build/xiao_esp32s3_left/firmware.bin \
+             software/app/web/firmware/bin/medistride-left.bin
+          cp firmware/.pio/build/xiao_esp32s3_right/firmware.bin \
+             software/app/web/firmware/bin/medistride-right.bin
+          ls -la software/app/web/firmware/bin/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: software/app/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

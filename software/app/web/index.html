@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1976d2">
+    <title>MediStride — Analyse de la marche</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+</head>
+<body>
+    <header>
+        <h1>MediStride</h1>
+        <div id="connection-status">
+            <span class="dot dot-left" id="status-left" title="Pied gauche"></span>
+            <span class="dot dot-right" id="status-right" title="Pied droit"></span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Vue déconnectée -->
+        <section id="view-disconnected" class="view active">
+            <div class="card">
+                <h2>Connexion des semelles</h2>
+                <p class="instructions">
+                    Allumez les deux semelles MediStride puis cliquez ci-dessous pour les connecter.
+                    Votre navigateur va vous demander de sélectionner chaque module dans une liste.
+                </p>
+                <div class="connect-buttons">
+                    <button id="btn-connect-left" class="btn btn-left">
+                        <span class="btn-icon">L</span>
+                        Connecter le pied gauche
+                    </button>
+                    <button id="btn-connect-right" class="btn btn-right">
+                        <span class="btn-icon">R</span>
+                        Connecter le pied droit
+                    </button>
+                </div>
+                <p class="note" id="ble-warning"></p>
+            </div>
+        </section>
+
+        <!-- Vue session -->
+        <section id="view-session" class="view">
+            <div class="patient-bar">
+                <label for="patient-id">Identifiant patient :</label>
+                <input type="text" id="patient-id" placeholder="ex. P-001" maxlength="32">
+                <button id="btn-start" class="btn btn-primary">Démarrer la session</button>
+                <button id="btn-stop" class="btn btn-stop" disabled>Arrêter</button>
+                <button id="btn-export" class="btn" disabled>Exporter CSV</button>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">Durée</div>
+                    <div class="metric-value" id="metric-duration">00:00</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Symétrie G/D</div>
+                    <div class="metric-value" id="metric-symmetry">—</div>
+                    <div class="metric-hint">100 % = parfaitement symétrique</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Cadence</div>
+                    <div class="metric-value" id="metric-cadence">—</div>
+                    <div class="metric-hint">pas/minute</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Échantillons</div>
+                    <div class="metric-value" id="metric-samples">0</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Batterie G</div>
+                    <div class="metric-value" id="metric-battery-left">—</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Batterie D</div>
+                    <div class="metric-value" id="metric-battery-right">—</div>
+                </div>
+            </div>
+
+            <div class="feet">
+                <div class="foot-panel">
+                    <h3>Pied gauche</h3>
+                    <canvas id="canvas-left" width="200" height="400" aria-label="Cartographie pied gauche"></canvas>
+                    <div class="foot-totals">
+                        <span>Force totale : <strong id="total-left">0</strong> N</span>
+                    </div>
+                </div>
+                <div class="foot-panel">
+                    <h3>Pied droit</h3>
+                    <canvas id="canvas-right" width="200" height="400" aria-label="Cartographie pied droit"></canvas>
+                    <div class="foot-totals">
+                        <span>Force totale : <strong id="total-right">0</strong> N</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card disclaimer">
+                <strong>Rappel :</strong> MediStride n'est pas un dispositif médical certifié.
+                Outil d'aide à l'observation uniquement — ne remplace pas un diagnostic clinique.
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <a href="flash.html">Flasher un module</a> ·
+        <a href="https://github.com/HugJax/MediStride" target="_blank" rel="noopener">GitHub</a> ·
+        <span id="version">v1.0</span>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

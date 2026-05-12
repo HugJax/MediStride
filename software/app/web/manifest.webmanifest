@@ -1,0 +1,18 @@
+{
+    "name": "MediStride",
+    "short_name": "MediStride",
+    "description": "Analyse de la marche par semelles intelligentes",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f5f7fa",
+    "theme_color": "#1976d2",
+    "lang": "fr",
+    "icons": [
+        {
+            "src": "icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

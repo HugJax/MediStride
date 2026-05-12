@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flasher un module MediStride</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <style>
+        .flash-card { max-width: 720px; margin: 0 auto; }
+        .step {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f5f7fa;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+        }
+        .step-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        esp-web-install-button {
+            display: block;
+            margin: 1rem 0;
+        }
+        .flash-choice {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .flash-choice .card {
+            text-align: center;
+            border: 2px solid transparent;
+            transition: border 0.2s;
+            cursor: pointer;
+        }
+        .flash-choice .card:hover { border-color: var(--primary); }
+        .flash-choice h3 { margin-top: 0; }
+        .flash-choice .left { border-top: 4px solid var(--left); }
+        .flash-choice .right { border-top: 4px solid var(--right); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MediStride — Flasher un module</h1>
+    </header>
+
+    <main>
+        <div class="card flash-card">
+            <h2>Installer le firmware sans aucun logiciel</h2>
+            <p>
+                Cette page permet de programmer un module XIAO ESP32-S3 directement depuis votre
+                navigateur, sans installer Arduino ni PlatformIO. Compatible <strong>Chrome</strong>
+                et <strong>Edge</strong> sur ordinateur (pas iOS, pas Firefox).
+            </p>
+
+            <div class="step">
+                <span class="step-num">1</span>
+                <strong>Branchez</strong> le module XIAO ESP32-S3 à votre ordinateur avec un câble USB-C.
+                Maintenez le bouton <code>BOOT</code> enfoncé, appuyez brièvement sur <code>RESET</code>,
+                puis relâchez <code>BOOT</code>. Le module est maintenant en mode programmation.
+            </div>
+
+            <div class="step">
+                <span class="step-num">2</span>
+                <strong>Choisissez</strong> le firmware à installer selon le pied :
+            </div>
+
+            <div class="flash-choice">
+                <div class="card left">
+                    <h3>Pied gauche</h3>
+                    <p>Nom BLE : <code>MediStride-L</code></p>
+                    <esp-web-install-button manifest="firmware/manifest-left.json">
+                        <button slot="activate" class="btn btn-primary">Installer (gauche)</button>
+                        <span slot="unsupported">Navigateur non compatible. Utilisez Chrome ou Edge.</span>
+                        <span slot="not-allowed">Vous devez accéder à cette page via HTTPS.</span>
+                    </esp-web-install-button>
+                </div>
+                <div class="card right">
+                    <h3>Pied droit</h3>
+                    <p>Nom BLE : <code>MediStride-R</code></p>
+                    <esp-web-install-button manifest="firmware/manifest-right.json">
+                        <button slot="activate" class="btn btn-primary">Installer (droit)</button>
+                        <span slot="unsupported">Navigateur non compatible. Utilisez Chrome ou Edge.</span>
+                        <span slot="not-allowed">Vous devez accéder à cette page via HTTPS.</span>
+                    </esp-web-install-button>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-num">3</span>
+                <strong>Sélectionnez le port</strong> du module dans la fenêtre qui s'ouvre.
+                Sur Linux, il s'agit généralement de <code>/dev/ttyACM0</code> ;
+                sur Windows de <code>COM3</code> ou similaire ; sur macOS de <code>/dev/cu.usbmodem*</code>.
+            </div>
+
+            <div class="step">
+                <span class="step-num">4</span>
+                <strong>Attendez</strong> la fin du flashage (env. 30 secondes). Le module redémarre
+                automatiquement et émet en BLE sous son nouveau nom.
+            </div>
+
+            <p class="note">
+                Vous ne trouvez pas votre module dans la liste des ports ?
+                Vérifiez le câble USB (certains ne transmettent que l'alimentation),
+                réinstallez les pilotes CP210x (sur Windows) ou consultez
+                <a href="../../../docs/guides/depannage.md">le guide de dépannage</a>.
+            </p>
+
+            <div class="card disclaimer" style="margin-top: 2rem;">
+                <strong>Note :</strong> Les binaires utilisés ici sont publiés sur la page
+                <a href="https://github.com/HugJax/MediStride/releases" target="_blank" rel="noopener">Releases du dépôt GitHub</a>.
+                Vous pouvez aussi flasher manuellement avec PlatformIO — voir le guide
+                <a href="../../../docs/guides/flashage.md">flashage.md</a>.
+            </div>
+
+            <p style="text-align: center; margin-top: 2rem;">
+                <a href="index.html">← Retour à l'application</a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <a href="index.html">Application</a> ·
+        <a href="https://github.com/HugJax/MediStride" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+</body>
+</html>

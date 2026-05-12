@@ -1,0 +1,15 @@
+{
+    "name": "MediStride (gauche)",
+    "version": "1.0.0",
+    "home_assistant_domain": "",
+    "funding_url": "https://github.com/HugJax/MediStride",
+    "new_install_prompt_erase": true,
+    "builds": [
+        {
+            "chipFamily": "ESP32-S3",
+            "parts": [
+                { "path": "bin/medistride-left.bin", "offset": 0 }
+            ]
+        }
+    ]
+}

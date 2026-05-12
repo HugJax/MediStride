@@ -1,4 +1,8 @@
 #include "sensors.h"
+#include "calibration.h"
+
+// Définie dans main.cpp pour permettre la synchronisation d'horloge G/D.
+extern uint32_t main_get_synced_ms();
 
 void sensors_init() {
     analogReadResolution(ADC_RESOLUTION);
@@ -11,7 +15,7 @@ void sensors_init() {
 }
 
 void sensors_read(PressureData &data) {
-    data.timestamp_ms = millis();
+    data.timestamp_ms = main_get_synced_ms();
 
     for (uint8_t i = 0; i < FSR_COUNT; i++) {
         // Moyenne de 4 lectures pour réduire le bruit
@@ -20,7 +24,7 @@ void sensors_read(PressureData &data) {
             sum += analogRead(FSR_PINS[i]);
         }
         data.sensors[i].raw = sum / 4;
-        data.sensors[i].force_n = sensors_adc_to_force(data.sensors[i].raw);
+        data.sensors[i].force_n = calibration_adc_to_force(i, data.sensors[i].raw);
     }
 }
 
