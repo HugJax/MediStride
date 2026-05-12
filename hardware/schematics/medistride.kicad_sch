@@ -1,0 +1,562 @@
+(kicad_sch
+  (version 20231120)
+  (generator "medistride")
+  (generator_version "8.0")
+  (uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
+  (paper "A3")
+
+  (title_block
+    (title "MediStride - Semelle Intelligente (1 pied)")
+    (date "2026-03-22")
+    (rev "1.0")
+    (company "MediStride Open Source")
+    (comment 1 "Schéma électronique - Module capteur pour un pied")
+    (comment 2 "6x FlexiForce A301 + XIAO ESP32-S3 + LiPo")
+    (comment 3 "Licence Apache 2.0")
+  )
+
+  ;; ============================================================
+  ;; Power symbols
+  ;; ============================================================
+
+  (symbol
+    (lib_id "power:+3V3")
+    (at 88.9 25.4 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "pwr-3v3-main")
+    (property "Reference" "#PWR01" (at 88.9 22.86 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "+3V3" (at 88.9 21.59 0) (effects (font (size 1.27 1.27))))
+  )
+
+  (symbol
+    (lib_id "power:GND")
+    (at 88.9 170.18 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "pwr-gnd-main")
+    (property "Reference" "#PWR02" (at 88.9 176.53 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Value" "GND" (at 88.9 173.99 0) (effects (font (size 1.27 1.27))))
+  )
+
+  ;; ============================================================
+  ;; U1 - XIAO ESP32-S3 Microcontroller
+  ;; ============================================================
+  ;; Pinout (left side, top to bottom):
+  ;;   1: D0/A0 (GPIO1)   - FSR1 (Talon centre)
+  ;;   2: D1/A1 (GPIO2)   - FSR2 (Talon latéral)
+  ;;   3: D2/A2 (GPIO3)   - FSR3 (Arche)
+  ;;   4: D3/A3 (GPIO4)   - FSR4 (1er métatarse)
+  ;;   5: D4/A4 (GPIO5)   - FSR5 (3e-4e métatarse)
+  ;;   6: D5/A5 (GPIO6)   - FSR6 (Gros orteil)
+  ;;   7: D6/SDA (GPIO43) - I2C SDA (réservé IMU)
+  ;; Pinout (right side, top to bottom):
+  ;;   14: 5V              - USB power
+  ;;   13: GND              - Ground
+  ;;   12: 3V3              - 3.3V output
+  ;;   11: D10/MOSI (GPIO9) - Libre
+  ;;   10: D9/MISO (GPIO8)  - Libre
+  ;;   9:  D8/SCK (GPIO7)   - Libre
+  ;;   8:  D7/SCL (GPIO44)  - I2C SCL (réservé IMU)
+  ;; Battery pads: BAT+ / BAT-
+
+  (symbol
+    (lib_id "MCU_Module:XIAO_ESP32-S3")
+    (at 88.9 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "u1-esp32s3")
+    (property "Reference" "U1" (at 88.9 60.96 0) (effects (font (size 1.524 1.524))))
+    (property "Value" "XIAO_ESP32-S3" (at 88.9 63.5 0) (effects (font (size 1.524 1.524))))
+    (property "Footprint" "" (at 88.9 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/" (at 88.9 88.9 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "u1-pin1"))
+    (pin "2" (uuid "u1-pin2"))
+    (pin "3" (uuid "u1-pin3"))
+    (pin "4" (uuid "u1-pin4"))
+    (pin "5" (uuid "u1-pin5"))
+    (pin "6" (uuid "u1-pin6"))
+    (pin "7" (uuid "u1-pin7"))
+    (pin "8" (uuid "u1-pin8"))
+    (pin "9" (uuid "u1-pin9"))
+    (pin "10" (uuid "u1-pin10"))
+    (pin "11" (uuid "u1-pin11"))
+    (pin "12" (uuid "u1-pin12"))
+    (pin "13" (uuid "u1-pin13"))
+    (pin "14" (uuid "u1-pin14"))
+    (pin "BAT+" (uuid "u1-bat+"))
+    (pin "BAT-" (uuid "u1-bat-"))
+  )
+
+  ;; ============================================================
+  ;; FSR1 - FlexiForce A301 - Talon (centre)
+  ;; Voltage divider: 3V3 -> FSR -> ADC_pin -> R_pulldown -> GND
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor:Force_FlexiForce")
+    (at 25.4 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "fsr1")
+    (property "Reference" "FSR1" (at 25.4 68.58 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "FlexiForce_A301_445N" (at 25.4 71.12 0) (effects (font (size 1.016 1.016))))
+    (property "Footprint" "" (at 25.4 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "Talon (centre) - Phase d'attaque du pas" (at 25.4 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "fsr1-p1"))
+    (pin "2" (uuid "fsr1-p2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 25.4 99.06 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "r1")
+    (property "Reference" "R1" (at 25.4 95.25 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10k" (at 25.4 102.87 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-down pour FSR1" (at 25.4 99.06 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r1-p1"))
+    (pin "2" (uuid "r1-p2"))
+  )
+
+  ;; ============================================================
+  ;; FSR2 - FlexiForce A301 - Talon (latéral)
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor:Force_FlexiForce")
+    (at 25.4 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "fsr2")
+    (property "Reference" "FSR2" (at 25.4 104.14 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "FlexiForce_A301_445N" (at 25.4 106.68 0) (effects (font (size 1.016 1.016))))
+    (property "Description" "Talon (latéral) - Pronation/supination" (at 25.4 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "fsr2-p1"))
+    (pin "2" (uuid "fsr2-p2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 25.4 134.62 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "r2")
+    (property "Reference" "R2" (at 25.4 130.81 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10k" (at 25.4 138.43 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-down pour FSR2" (at 25.4 134.62 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r2-p1"))
+    (pin "2" (uuid "r2-p2"))
+  )
+
+  ;; ============================================================
+  ;; FSR3 - FlexiForce A301 - Milieu du pied (arche)
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor:Force_FlexiForce")
+    (at 25.4 147.32 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "fsr3")
+    (property "Reference" "FSR3" (at 25.4 139.7 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "FlexiForce_A301_445N" (at 25.4 142.24 0) (effects (font (size 1.016 1.016))))
+    (property "Description" "Milieu du pied (arche) - Détection pied plat/creux" (at 25.4 147.32 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "fsr3-p1"))
+    (pin "2" (uuid "fsr3-p2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 25.4 170.18 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "r3")
+    (property "Reference" "R3" (at 25.4 166.37 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10k" (at 25.4 173.99 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-down pour FSR3" (at 25.4 170.18 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r3-p1"))
+    (pin "2" (uuid "r3-p2"))
+  )
+
+  ;; ============================================================
+  ;; FSR4 - FlexiForce A301 - 1er métatarse
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor:Force_FlexiForce")
+    (at 157.48 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "fsr4")
+    (property "Reference" "FSR4" (at 157.48 68.58 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "FlexiForce_A301_445N" (at 157.48 71.12 0) (effects (font (size 1.016 1.016))))
+    (property "Description" "1er métatarse - Propulsion médiale" (at 157.48 76.2 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "fsr4-p1"))
+    (pin "2" (uuid "fsr4-p2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 157.48 99.06 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "r4")
+    (property "Reference" "R4" (at 157.48 95.25 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10k" (at 157.48 102.87 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-down pour FSR4" (at 157.48 99.06 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r4-p1"))
+    (pin "2" (uuid "r4-p2"))
+  )
+
+  ;; ============================================================
+  ;; FSR5 - FlexiForce A301 - 3e-4e métatarse
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor:Force_FlexiForce")
+    (at 157.48 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "fsr5")
+    (property "Reference" "FSR5" (at 157.48 104.14 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "FlexiForce_A301_445N" (at 157.48 106.68 0) (effects (font (size 1.016 1.016))))
+    (property "Description" "3e-4e métatarse - Propulsion latérale" (at 157.48 111.76 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "fsr5-p1"))
+    (pin "2" (uuid "fsr5-p2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 157.48 134.62 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "r5")
+    (property "Reference" "R5" (at 157.48 130.81 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10k" (at 157.48 138.43 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-down pour FSR5" (at 157.48 134.62 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r5-p1"))
+    (pin "2" (uuid "r5-p2"))
+  )
+
+  ;; ============================================================
+  ;; FSR6 - FlexiForce A301 - Gros orteil
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor:Force_FlexiForce")
+    (at 157.48 147.32 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "fsr6")
+    (property "Reference" "FSR6" (at 157.48 139.7 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "FlexiForce_A301_445N" (at 157.48 142.24 0) (effects (font (size 1.016 1.016))))
+    (property "Description" "Gros orteil - Phase finale de propulsion" (at 157.48 147.32 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "fsr6-p1"))
+    (pin "2" (uuid "fsr6-p2"))
+  )
+
+  (symbol
+    (lib_id "Device:R")
+    (at 157.48 170.18 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "r6")
+    (property "Reference" "R6" (at 157.48 166.37 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10k" (at 157.48 173.99 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-down pour FSR6" (at 157.48 170.18 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r6-p1"))
+    (pin "2" (uuid "r6-p2"))
+  )
+
+  ;; ============================================================
+  ;; C1 - Condensateur de découplage 100nF
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Device:C")
+    (at 120.65 33.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "c1")
+    (property "Reference" "C1" (at 124.46 31.75 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100nF" (at 124.46 34.29 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Condensateur de découplage alimentation" (at 120.65 33.02 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "c1-p1"))
+    (pin "2" (uuid "c1-p2"))
+  )
+
+  ;; ============================================================
+  ;; C2 - Condensateur de découplage 10µF
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 133.35 33.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "c2")
+    (property "Reference" "C2" (at 137.16 31.75 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "10µF" (at 137.16 34.29 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Condensateur de filtrage alimentation" (at 133.35 33.02 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "c2-p1"))
+    (pin "2" (uuid "c2-p2"))
+  )
+
+  ;; ============================================================
+  ;; BT1 - Batterie LiPo 3.7V 500mAh
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Device:Battery")
+    (at 55.88 33.02 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "bt1")
+    (property "Reference" "BT1" (at 59.69 31.75 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "LiPo_3.7V_500mAh" (at 55.88 40.64 0) (effects (font (size 1.016 1.016))))
+    (property "Description" "Batterie LiPo 3.7V 500mAh - Connecteur JST-PH 2.0" (at 55.88 33.02 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "bt1-p1"))
+    (pin "2" (uuid "bt1-p2"))
+  )
+
+  ;; ============================================================
+  ;; SW1 - Interrupteur marche/arrêt
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Switch:SW_SPST")
+    (at 55.88 20.32 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (uuid "sw1")
+    (property "Reference" "SW1" (at 55.88 16.51 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "ON/OFF" (at 55.88 24.13 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Interrupteur marche/arrêt" (at 55.88 20.32 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "sw1-p1"))
+    (pin "2" (uuid "sw1-p2"))
+  )
+
+  ;; ============================================================
+  ;; U2 - MPU-6050 IMU 6 axes (OPTIONNEL)
+  ;; Accéléromètre 3 axes + Gyroscope 3 axes
+  ;; Connecté en I2C : SDA (GPIO43), SCL (GPIO44)
+  ;; Adresse I2C : 0x68 (AD0 → GND)
+  ;; ============================================================
+
+  (symbol
+    (lib_id "Sensor_Motion:MPU-6050")
+    (at 190.5 195.58 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp yes)
+    (uuid "u2-mpu6050")
+    (property "Reference" "U2" (at 190.5 180.34 0) (effects (font (size 1.524 1.524))))
+    (property "Value" "MPU-6050 [OPTIONNEL]" (at 190.5 182.88 0) (effects (font (size 1.27 1.27))))
+    (property "Footprint" "" (at 190.5 195.58 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Datasheet" "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf" (at 190.5 195.58 0) (effects (font (size 1.27 1.27)) hide))
+    (property "Description" "IMU 6 axes (optionnel) - Orientation du pied, cadence, phases du pas" (at 190.5 195.58 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "VCC" (uuid "u2-vcc"))
+    (pin "GND" (uuid "u2-gnd"))
+    (pin "SDA" (uuid "u2-sda"))
+    (pin "SCL" (uuid "u2-scl"))
+    (pin "AD0" (uuid "u2-ad0"))
+    (pin "INT" (uuid "u2-int"))
+  )
+
+  ;; R7 - Pull-up I2C SDA (optionnel, souvent intégré au module)
+  (symbol
+    (lib_id "Device:R")
+    (at 170.18 185.42 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp yes)
+    (uuid "r7")
+    (property "Reference" "R7" (at 173.99 184.15 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "4.7k" (at 173.99 186.69 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-up I2C SDA (optionnel si présent sur le module)" (at 170.18 185.42 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r7-p1"))
+    (pin "2" (uuid "r7-p2"))
+  )
+
+  ;; R8 - Pull-up I2C SCL (optionnel, souvent intégré au module)
+  (symbol
+    (lib_id "Device:R")
+    (at 210.82 185.42 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp yes)
+    (uuid "r8")
+    (property "Reference" "R8" (at 214.63 184.15 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "4.7k" (at 214.63 186.69 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Pull-up I2C SCL (optionnel si présent sur le module)" (at 210.82 185.42 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "r8-p1"))
+    (pin "2" (uuid "r8-p2"))
+  )
+
+  ;; C3 - Condensateur de découplage MPU-6050 (optionnel)
+  (symbol
+    (lib_id "Device:C")
+    (at 220.98 195.58 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp yes)
+    (uuid "c3")
+    (property "Reference" "C3" (at 224.79 194.31 0) (effects (font (size 1.27 1.27))))
+    (property "Value" "100nF" (at 224.79 196.85 0) (effects (font (size 1.27 1.27))))
+    (property "Description" "Découplage MPU-6050 (optionnel si présent sur le module)" (at 220.98 195.58 0) (effects (font (size 1.27 1.27)) hide))
+    (pin "1" (uuid "c3-p1"))
+    (pin "2" (uuid "c3-p2"))
+  )
+
+  ;; --- IMU I2C wires ---
+  ;; SDA : GPIO43 (D6) → R7 pull-up → MPU-6050 SDA
+  (wire (pts (xy 63.5 104.14) (xy 170.18 190.5)))
+  (wire (pts (xy 170.18 190.5) (xy 190.5 195.58)))
+  ;; SCL : GPIO44 (D7) → R8 pull-up → MPU-6050 SCL
+  (wire (pts (xy 114.3 104.14) (xy 210.82 190.5)))
+  (wire (pts (xy 210.82 190.5) (xy 190.5 198.12)))
+  ;; MPU-6050 VCC → +3V3
+  (wire (pts (xy 190.5 187.96) (xy 190.5 185.42)))
+  ;; MPU-6050 GND → GND
+  (wire (pts (xy 190.5 205.74) (xy 190.5 210.82)))
+  ;; MPU-6050 AD0 → GND (adresse 0x68)
+  (wire (pts (xy 198.12 205.74) (xy 198.12 210.82)))
+
+  (net_label "+3V3" (at 190.5 185.42 0) (effects (font (size 1.27 1.27))))
+  (net_label "GND" (at 190.5 210.82 0) (effects (font (size 1.27 1.27))))
+
+  (text "MPU-6050 (OPTIONNEL)\nIMU 6 axes : accéléromètre + gyroscope\nConnexion I2C (adresse 0x68)\n\nApporte :\n- Détection des phases du cycle de marche\n- Mesure de la cadence (pas/minute)\n- Orientation dynamique du pied\n\nLa plupart des modules incluent\nles pull-ups I2C et le découplage.\nR7, R8 et C3 sont alors inutiles.\n\nAlternative premium : BNO055\n(9 axes + fusion intégrée, ~25-30 USD)"
+    (at 240 195.58 0)
+    (effects (font (size 1.524 1.524)))
+  )
+
+  ;; ============================================================
+  ;; Wires / Net labels
+  ;; ============================================================
+
+  ;; --- Power rails ---
+  (wire (pts (xy 88.9 25.4) (xy 88.9 30.48)))
+  (wire (pts (xy 88.9 30.48) (xy 120.65 30.48)))
+  (wire (pts (xy 120.65 30.48) (xy 133.35 30.48)))
+
+  ;; --- Battery to ESP32 BAT pads ---
+  (wire (pts (xy 55.88 25.4) (xy 55.88 20.32)))
+  (wire (pts (xy 55.88 27.94) (xy 88.9 27.94)))
+
+  ;; --- GND rail ---
+  (wire (pts (xy 88.9 170.18) (xy 88.9 165.1)))
+  (wire (pts (xy 120.65 35.56) (xy 120.65 170.18)))
+  (wire (pts (xy 133.35 35.56) (xy 133.35 170.18)))
+
+  ;; --- FSR1 to A0 ---
+  (wire (pts (xy 25.4 83.82) (xy 25.4 88.9)))
+  (wire (pts (xy 25.4 88.9) (xy 63.5 88.9)))
+
+  ;; --- FSR2 to A1 ---
+  (wire (pts (xy 25.4 119.38) (xy 25.4 124.46)))
+  (wire (pts (xy 25.4 124.46) (xy 63.5 93.98)))
+
+  ;; --- FSR3 to A2 ---
+  (wire (pts (xy 25.4 154.94) (xy 25.4 160.02)))
+  (wire (pts (xy 25.4 160.02) (xy 63.5 99.06)))
+
+  ;; --- FSR4 to A3 ---
+  (wire (pts (xy 157.48 83.82) (xy 157.48 88.9)))
+  (wire (pts (xy 157.48 88.9) (xy 114.3 88.9)))
+
+  ;; --- FSR5 to A4 ---
+  (wire (pts (xy 157.48 119.38) (xy 157.48 124.46)))
+  (wire (pts (xy 157.48 124.46) (xy 114.3 93.98)))
+
+  ;; --- FSR6 to A5 ---
+  (wire (pts (xy 157.48 154.94) (xy 157.48 160.02)))
+  (wire (pts (xy 157.48 160.02) (xy 114.3 99.06)))
+
+  ;; ============================================================
+  ;; Net labels for clarity
+  ;; ============================================================
+
+  (net_label "ADC0_TALON_C" (at 40.64 88.9 0) (effects (font (size 1.27 1.27))))
+  (net_label "ADC1_TALON_L" (at 40.64 93.98 0) (effects (font (size 1.27 1.27))))
+  (net_label "ADC2_ARCHE" (at 40.64 99.06 0) (effects (font (size 1.27 1.27))))
+  (net_label "ADC3_META1" (at 137.16 88.9 0) (effects (font (size 1.27 1.27))))
+  (net_label "ADC4_META34" (at 137.16 93.98 0) (effects (font (size 1.27 1.27))))
+  (net_label "ADC5_ORTEIL" (at 137.16 99.06 0) (effects (font (size 1.27 1.27))))
+  (net_label "+3V3" (at 88.9 27.94 0) (effects (font (size 1.27 1.27))))
+  (net_label "GND" (at 88.9 167.64 0) (effects (font (size 1.27 1.27))))
+  (net_label "VBAT" (at 66.04 27.94 0) (effects (font (size 1.27 1.27))))
+  (net_label "SDA" (at 63.5 104.14 0) (effects (font (size 1.27 1.27))))
+  (net_label "SCL" (at 114.3 104.14 0) (effects (font (size 1.27 1.27))))
+
+  ;; ============================================================
+  ;; Text annotations
+  ;; ============================================================
+
+  (text "MediStride - Module capteur (1 pied)\n\nCircuit de conditionnement des capteurs FlexiForce A301 :\nChaque capteur forme un diviseur de tension avec une\nrésistance pull-down de 10kΩ.\n\nVout = 3.3V × R_pulldown / (R_FSR + R_pulldown)\n\nQuand aucune force n'est appliquée : R_FSR → ∞, Vout → 0V\nQuand force maximale (445N) : R_FSR → min, Vout → ~3.3V"
+    (at 190.5 76.2 0)
+    (effects (font (size 1.524 1.524)))
+  )
+
+  (text "Connexions I2C :\nSDA → GPIO43 (D6) → MPU-6050 (optionnel)\nSCL → GPIO44 (D7) → MPU-6050 (optionnel)\n\nVoir section IMU en bas du schéma"
+    (at 190.5 120.65 0)
+    (effects (font (size 1.524 1.524)))
+  )
+
+  (text "Alimentation :\nBatterie LiPo 3.7V 500mAh → pads BAT+/BAT-\nCircuit de charge intégré au XIAO ESP32-S3\nCharge via USB-C\nInterrupteur ON/OFF sur BAT+"
+    (at 190.5 147.32 0)
+    (effects (font (size 1.524 1.524)))
+  )
+
+  (text "Configuration ADC ESP32-S3 :\nRésolution : 12 bits (0-4095)\nAtténuation : 11dB (plage 0-3.3V)\nFréquence d'échantillonnage : 20 Hz par capteur\n\nAssignation des broches :\nA0 (GPIO1) → FSR1 Talon centre\nA1 (GPIO2) → FSR2 Talon latéral\nA2 (GPIO3) → FSR3 Arche\nA3 (GPIO4) → FSR4 1er métatarse\nA4 (GPIO5) → FSR5 3e-4e métatarse\nA5 (GPIO6) → FSR6 Gros orteil"
+    (at 190.5 40.64 0)
+    (effects (font (size 1.524 1.524)))
+  )
+)

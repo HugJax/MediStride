@@ -24,6 +24,11 @@ env/
 *.hex
 *.bin
 
+# KiCad
+*-backups/
+*.kicad_prl
+fp-info-cache
+
 # OS
 .DS_Store
 Thumbs.db
