@@ -74,22 +74,48 @@ individuellement avec un poids connu.
 
 ### Sauvegarder la calibration dans le firmware
 
-Le firmware (à partir de la version 1.1) accepte une caractéristique BLE
-d'écriture pour stocker la calibration en mémoire NVS persistante. Procédure
-détaillée dans [`firmware/src/calibration.h`](../../firmware/src/calibration.h).
+Le firmware (≥ v1.1) expose une caractéristique BLE d'écriture (`CONFIG_CHAR_UUID`,
+définie dans [`firmware/src/config.h`](../../firmware/src/config.h)) qui accepte
+des commandes pour stocker la calibration en NVS persistante.
 
-Une **commande Python** est fournie pour automatiser :
+Un **script Python** automatise toute la chaîne — régression linéaire des points
+de mesure puis envoi BLE au module :
 
 ```bash
 cd software/analysis
-python -m medistride.calibrate \
-    --device MediStride-L \
-    --csv calibration_left.csv
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt   # installe aussi bleak (BLE)
+
+# 1. Construire un CSV de calibration avec vos mesures :
+cat > calibration_left.csv <<EOF
+sensor,adc,force_n
+1,12,0
+1,380,14.7
+1,1450,59
+1,2580,120
+2,15,0
+2,400,14.7
+2,1480,59
+# ... un capteur à la fois
+EOF
+
+# 2. Vérifier les coefficients ajustés sans connexion BLE :
+python -m medistride.calibrate --csv calibration_left.csv --dry-run
+
+# 3. Envoyer la calibration au module (allumé et à portée Bluetooth) :
+python -m medistride.calibrate --device MediStride-L --csv calibration_left.csv
 ```
 
-Le fichier CSV doit contenir une colonne `sensor` (1-6), une colonne `force_n`
-et une colonne `adc`. Le script ajuste une régression et envoie les coefficients
-au module.
+Options principales :
+- `--device` : nom BLE du module (`MediStride-L` ou `MediStride-R`).
+- `--csv` : fichier de mesures (colonnes `sensor` 1-6, `adc`, `force_n`).
+- `--dry-run` : calcule et affiche les coefficients sans BLE.
+- `--no-save` : applique en RAM uniquement, perdu au reboot.
+- `--reset` : remet la calibration aux valeurs par défaut firmware.
+
+Le script utilise la bibliothèque [`bleak`](https://bleak.readthedocs.io/) qui
+fonctionne sur Linux (BlueZ), macOS et Windows 10/11.
 
 ---
 

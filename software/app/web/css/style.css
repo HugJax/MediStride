@@ -182,6 +182,13 @@ main {
     flex: 0 1 200px;
 }
 
+.sync-status {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+}
+
 .metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

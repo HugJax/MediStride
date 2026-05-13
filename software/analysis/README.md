@@ -29,12 +29,23 @@ Affiche :
 ### Calibrer un module via BLE
 
 ```bash
+# Vérifier les coefficients ajustés (offline) :
+python -m medistride.calibrate --csv calibration_data.csv --dry-run
+
+# Envoyer la calibration au module (BLE) :
 python -m medistride.calibrate --device MediStride-L --csv calibration_data.csv
+
+# Réinitialiser la calibration aux valeurs par défaut :
+python -m medistride.calibrate --device MediStride-L --reset
 ```
 
-Le CSV doit contenir trois colonnes : `sensor` (1-6), `force_n`, `adc`.
-Le script ajuste une régression linéaire par capteur et envoie les coefficients
-au module via la caractéristique BLE de configuration.
+Le CSV doit contenir trois colonnes : `sensor` (1-6), `adc`, `force_n`.
+Plusieurs lignes par capteur sont acceptées : le script fait une régression
+linéaire des moindres carrés par capteur, puis envoie chaque couple
+(slope, intercept) via la caractéristique CONFIG (`…0005`) du firmware.
+
+Voir [`docs/guides/calibration.md`](../../docs/guides/calibration.md) pour la
+procédure complète de calibration.
 
 ## Format CSV attendu
 

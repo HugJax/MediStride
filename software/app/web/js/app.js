@@ -89,14 +89,42 @@ function updateView() {
     document.getElementById('view-session').classList.toggle('active', !!anyConnected);
 }
 
-function startSession() {
+async function startSession() {
+    const btnStart = document.getElementById('btn-start');
+    btnStart.disabled = true;
+
     state.analyzer.reset();
     state.samples = [];
-    state.recording = true;
     state.sessionStartIso = new Date().toISOString();
-    document.getElementById('btn-start').disabled = true;
+    state.sessionStartMs = Date.now();
+
+    // Synchroniser l'horloge des modules sur une référence commune.
+    // Sans cette étape, les timestamps de chaque pied sont décorrélés
+    // (chacun compte depuis son propre boot) et la symétrie ne peut pas
+    // être calculée fiablement.
+    const refMs = state.sessionStartMs;
+    const syncResults = [];
+    for (const side of ['left', 'right']) {
+        const dev = state.devices[side];
+        if (!dev || !dev.connected) continue;
+        try {
+            await dev.syncTime(refMs);
+            syncResults.push(`${side} OK`);
+        } catch (err) {
+            console.warn(`[SYNC] ${side} :`, err);
+            syncResults.push(`${side} échec`);
+        }
+    }
+    setSyncStatus(syncResults.join(' · '));
+
+    state.recording = true;
     document.getElementById('btn-stop').disabled = false;
     document.getElementById('btn-export').disabled = true;
+}
+
+function setSyncStatus(text) {
+    const el = document.getElementById('sync-status');
+    if (el) el.textContent = text || '';
 }
 
 function stopSession() {

@@ -5,6 +5,17 @@ export const SERVICE_UUID       = '4d454449-5354-5249-4445-000000000001';
 export const PRESSURE_CHAR_UUID = '4d454449-5354-5249-4445-000000000002';
 export const IMU_CHAR_UUID      = '4d454449-5354-5249-4445-000000000003';
 export const BATTERY_CHAR_UUID  = '4d454449-5354-5249-4445-000000000004';
+export const CONFIG_CHAR_UUID   = '4d454449-5354-5249-4445-000000000005';
+
+// Codes de commandes pour la caractéristique CONFIG. Doivent rester en phase
+// avec l'énumération ConfigCmd côté firmware (firmware/src/ble_server.cpp).
+export const CMD_SYNC_TIME    = 0x01;
+export const CMD_SET_CAL      = 0x02;
+export const CMD_SAVE_CAL     = 0x03;
+export const CMD_RESET_CAL    = 0x04;
+export const CMD_FORCE_SIDE_L = 0x05;
+export const CMD_FORCE_SIDE_R = 0x06;
+export const CMD_CLEAR_FORCE  = 0x07;
 
 const FSR_COUNT = 6;
 
@@ -43,6 +54,7 @@ export class MediStrideDevice extends EventTarget {
         this.server = null;
         this.pressureChar = null;
         this.batteryChar = null;
+        this.configChar = null;
         this.connected = false;
     }
 
@@ -79,11 +91,16 @@ export class MediStrideDevice extends EventTarget {
                 this.dispatchEvent(new CustomEvent('battery', { detail: { level, side: this.side } }));
             });
             await this.batteryChar.startNotifications();
-            // Lecture initiale
             const batValue = await this.batteryChar.readValue();
             this.dispatchEvent(new CustomEvent('battery', { detail: { level: batValue.getUint8(0), side: this.side } }));
         } catch (err) {
             console.warn(`[${this.side}] Caractéristique batterie indisponible`, err);
+        }
+
+        try {
+            this.configChar = await service.getCharacteristic(CONFIG_CHAR_UUID);
+        } catch (err) {
+            console.warn(`[${this.side}] Caractéristique CONFIG indisponible (firmware ancien)`, err);
         }
 
         this.connected = true;
@@ -100,4 +117,44 @@ export class MediStrideDevice extends EventTarget {
             this.device.gatt.disconnect();
         }
     }
+
+    // --- Caractéristique CONFIG ---
+
+    async _writeConfig(cmd, payload = new Uint8Array(0)) {
+        if (!this.configChar) {
+            throw new Error('Caractéristique CONFIG indisponible — mettre à jour le firmware.');
+        }
+        const buffer = new Uint8Array(1 + payload.byteLength);
+        buffer[0] = cmd;
+        buffer.set(payload, 1);
+        await this.configChar.writeValue(buffer);
+    }
+
+    // Aligne l'horloge interne du module sur `referenceMs` (millisecondes
+    // depuis epoch ou tout autre référence commune). Indispensable pour
+    // comparer les timestamps des deux pieds.
+    async syncTime(referenceMs = Date.now()) {
+        const payload = new Uint8Array(4);
+        new DataView(payload.buffer).setUint32(0, referenceMs >>> 0, true);
+        await this._writeConfig(CMD_SYNC_TIME, payload);
+    }
+
+    // Définit la calibration d'un capteur (force_n = slope*adc + intercept).
+    // `sensorIndex` est 0-based (0..5).
+    async setCalibration(sensorIndex, slope, intercept) {
+        const payload = new Uint8Array(9);
+        const view = new DataView(payload.buffer);
+        view.setUint8(0, sensorIndex);
+        view.setFloat32(1, slope, true);
+        view.setFloat32(5, intercept, true);
+        await this._writeConfig(CMD_SET_CAL, payload);
+    }
+
+    async saveCalibration() { return this._writeConfig(CMD_SAVE_CAL); }
+    async resetCalibration() { return this._writeConfig(CMD_RESET_CAL); }
+
+    async forceSide(side) {
+        return this._writeConfig(side === 'left' ? CMD_FORCE_SIDE_L : CMD_FORCE_SIDE_R);
+    }
+    async clearForcedSide() { return this._writeConfig(CMD_CLEAR_FORCE); }
 }

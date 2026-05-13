@@ -2,3 +2,5 @@ numpy>=1.24
 pandas>=2.0
 matplotlib>=3.7
 pytest>=7.4
+# BLE (uniquement pour `python -m medistride.calibrate`)
+bleak>=0.21
